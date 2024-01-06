@@ -76,10 +76,17 @@ public class LottoRepositoryImpl implements LottoRepository{
                 }
             }
         }
+        // random함수를 이용해서 최소값 1 최대값 45의 로또 번호를 하나 생성
+        // 2중 for문으로 i가 lotto 배열의 길이 값까지 하나씩 돌면서 번호를 랜덤으로 하나씩 생성함
+        // j for문에서 i에 담긴 값과 일치하면 i에서 생성된 로또 번호를 삭제 후 break;
+        // 중복되는 번호를 모두 삭제 하고 난 6개의 번호를 lotto 배열에 저장함
 
         Arrays.sort(lotto);
+        // 저장 후 sort함수로 낮은 숫자부터 높은 숫자로 정렬함
         System.out.println("생성된 로또 번호 = " + Arrays.toString(lotto));
         fixedLottoNumbers = lotto;
+        // 정렬 후 전역변수인 fixedLottoNumbers 변수에 lotto 배열 값을 다시 저장해서
+        // 스프링 서버가 실행되는 동안 해당 번호가 유지되게 함
         return fixedLottoNumbers;
     }
 
@@ -112,6 +119,7 @@ public class LottoRepositoryImpl implements LottoRepository{
             //preparedStatement.setString(8, lottonumber);
             String fixedlottonumber = Arrays.toString(newlottoNumbers());
             preparedStatement.setString(7, fixedlottonumber);
+            // 로또 번호를 int형 배열을 String형변환 후 db에 저장
             String localdatetime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             preparedStatement.setString(8, localdatetime);
 
@@ -177,6 +185,8 @@ public class LottoRepositoryImpl implements LottoRepository{
                 return findId;
             }
         }
+        // Map에 저장된 데이터를 기준으로 userid와 password가 일치하는 곳의 key 값인 id값을 가져와서 findId에 재할당
+        // 일치하는 데이터가 없으면 null을 반환
         return null;
     }
 
@@ -214,6 +224,7 @@ public class LottoRepositoryImpl implements LottoRepository{
         else {
             return "#000000"; // 기본값은 검정색
         }
+        // 컨트롤러에서 넘어온 배열 index 값을 number 매개변수에 담아서 들어온 값에 따라 색상코드값을 return해서 전달함
     }
 
     @Override
@@ -242,6 +253,10 @@ public class LottoRepositoryImpl implements LottoRepository{
             }
         }
 
+        // 컨트롤러에서 입력한 로또 번호와 스프링서버 실행시 생성된 로또 번호값을 가져와서
+        // 동일한 값이 있으면 count++로 개수를 체크함
+        // 일치하는 숫자의 개수에 따라 등수 결정
+
         String rank;
         if (count == 6)
         {
@@ -259,6 +274,10 @@ public class LottoRepositoryImpl implements LottoRepository{
                 rankcount1 = fixedrankcount1;
                 lotto.setLottorank1(fixedrankcount1);
             }
+
+            // Map에 grade가 null 이면 1등 값을 + 1 하고 현재 증가한 값을 전역변수인 fixedrankcount1 값에 저장함
+            // null이 아니면 1등 값은 기존에 저장한 fixedrankcount1 값을 그대로 유지해서 저장
+            // 나머지 등수도 마찬가지로 적용
 
             String sql = "update lotto set grade = ?, lottorankcount1 = ? where id = ?";
 
@@ -640,6 +659,7 @@ public class LottoRepositoryImpl implements LottoRepository{
     public void lottoBuyDateTime(Long id) {
         Lotto lotto = data.get(id);
         LocalDateTime localDateTime = LocalDateTime.now().withNano(0);
+        // widthNano 함수로 시간 날짜에서 뒷자리 소수점을 제외
         lotto.setLottobuyDateTime(localDateTime);
         System.out.println("로또 구매 날짜 시간 = " + localDateTime);
 
@@ -678,6 +698,8 @@ public class LottoRepositoryImpl implements LottoRepository{
     public List<Lotto> findAll() {
         List<Lotto> lottoList = new ArrayList<>();
         String findAllSql = "select * from lotto";
+
+        // db에 저장되어 있는 데이터 중 등수에 해당하는 데이터를 전부 가져옴
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(findAllSql);
