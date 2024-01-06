@@ -57,6 +57,9 @@ public class LottoController {
     {
         finduserId = lottoService.findUserId(userId, password);
 
+        // 입력 받은 로그인 정보 아이디와 비밀번호를 findUserId 메소드에 전달해서 데이터 일치 여부에 따라
+        // key값을 가져와서 저장후 null 검사 후 데이터 처리
+        // 해당 key값을 찾지 못하면 view에 로그인 정보가 없다는 메세지 전달 후 홈페이지에 출력
         if (finduserId != null)
         {
             System.out.println("로그인한 id(Long) = " + finduserId);
@@ -120,6 +123,7 @@ public class LottoController {
         }
         model.addAttribute("lottoColors", lottoColors);
         // model.addAttribute는 반복문 안에 있으면 안되고 밖에 있어야 한다
+        // 반복문 안에 있으면 번호 배열 길이 만큼 모든 데이터가 전부 전송 되기 때문에 정확한 값이 안나옴
         String rank = lottoService.checkLottoRank(lottoService.createLotto(), mylottonumber);
         model.addAttribute("rank", rank);
         return "/lotto/lottowincheck";
@@ -149,6 +153,7 @@ public class LottoController {
         model.addAttribute("rankcount5", lottoList.stream().mapToInt(Lotto::getLottorank5).sum());
         model.addAttribute("rankcount6", lottoList.stream().mapToInt(Lotto::getLottorank6).sum());
         model.addAttribute("rankcount7", lottoList.stream().mapToInt(Lotto::getLottorank7).sum());
+        // lottoList에 각 등수별 저장된 모든 데이터가 담겨 있는데 모든 사용자별 등수에 맞는 합을 구해야함
         // lottoList 리스트를 스트림 형태로 변환 후 Lotto 객체에서 getLottorank 메소드를 호출해서 해당 객체들의 필드 값을 가져온다
         // mapToint는 intStream으로 매핑해서 정수 형태로 변환한다
         // 그 후 sum() 함수로 불러온 데이터들의 합계를 계산한다
